@@ -24,18 +24,33 @@ class DataLoader():
             file_name = os.getcwd() + '/DATASET/' + self.file_names[idx]
             self.dataset[tag] = loadmat(file_name)
 
+    def generateWindow(self, x_raw, y_raw, window_size):
+        x_data = []
+        n_data = x_raw.shape[0]
+
+        for idx in range(n_data-window_size):
+            x_data.append(
+                x_raw[idx:idx+self.window_size].reshape(1, window_size, -1)
+            )
+        
+        x_data = np.concatenate(x_data)
+        y_data = y_raw[window_size:, :]
+        return x_data, y_data
+
+
     def getTrainDataSet(self):
         x_data = []
         y_data = []
         for tag, data in self.dataset.items():
-            x_data.append(data['train_x'][:, -self.window_size:, :])
-            y_data.append(data['train_y'])
+            x, y = self.generateWindow(data['train_x'], data['train_y'], self.window_size)
+            x_data.append(x)
+            y_data.append(y)
         return np.concatenate(x_data, 0), np.concatenate(y_data, 0)
 
     def getTestDataSet(self, tag):
-        x_data = self.dataset[tag]['test_x'][:, -self.window_size:, :]
+        x_data = self.dataset[tag]['test_x']
         y_data = self.dataset[tag]['test_y']
-        return x_data, y_data
+        return self.generateWindow(x_data, y_data, self.window_size)
 
     def forwardKinematics(self, y_data, tag):
         hip_data = self.dataset[tag]['test_hip']
