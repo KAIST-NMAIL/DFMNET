@@ -2,3 +2,4 @@
 DATASET_old/
 .idea/
 *.mp4
+*.pyc
