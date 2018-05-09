@@ -8,7 +8,11 @@ Dooyoung Kim, Junghan Kwon, Seunghyun Han, Yong-Lae Park, Sungho Jo. "Deep Full-
 
 ## Fabrication
 
+
+
 ### Circuit
+
+![circuit](figs/circuit.png)
 
 ### Sensor Placement
 
@@ -16,9 +20,9 @@ Dooyoung Kim, Junghan Kwon, Seunghyun Han, Yong-Lae Park, Sungho Jo. "Deep Full-
 ## QnA
 ### Q.1 How well the proposed approach behaves when repeating sessions of motions. How do the sensor signals drift and does it require to repeat the calibration procedure? 
 
-The root mean sq ~ is illustrated as below. In our experiment, there are no draft effect a~ and it is a neg~ . Therefore, our method dose not need to re-calibration procedure. 
+The root mean sq ~ is illustrated as below. In our experiment, there are no drift effect a~ and it is a neg~ . Therefore, our method dose not need to re-calibration procedure. 
 
-![draft](figs/draft.png)
+![drift](figs/drift.png)
 
 ## Code usage
 
