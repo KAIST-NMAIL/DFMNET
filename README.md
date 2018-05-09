@@ -2,7 +2,8 @@
 
 Dooyoung Kim, Junghan Kwon, Seunghyun Han, Yong-Lae Park, Sungho Jo. "Deep Full-Body Motion Network (DFM-Net) for a Soft Wearable Motion Sensing Suit", submitted to TMECH.
 
-## Video (YouTube)
+**Youtube**
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/aiJTen06Lf0/0.jpg)](https://www.youtube.com/watch?v=aiJTen06Lf0)
 
 ## Fabrication
