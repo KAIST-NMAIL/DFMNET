@@ -10,19 +10,29 @@ Dooyoung Kim, Junghan Kwon, Seunghyun Han, Yong-Lae Park, Sungho Jo. "Deep Full-
 
 
 
-### Circuit
+### Data acquisition setup
 
+* Circuit
 ![circuit](figs/circuit.png)
+
+* Detailed wiring
+![Wire](figs/dw.png)
+
 
 ### Sensor Placement
 
+![LOC](figs/sensorLOC.png)
+*Source of the muscle image: http://www.teachpe.com/anatomy/muscles.php*
+
 
 ## QnA
+
 ### Q.1 How well the proposed approach behaves when repeating sessions of motions. How do the sensor signals drift and does it require to repeat the calibration procedure? 
 
 The root mean sq ~ is illustrated as below. In our experiment, there are no drift effect a~ and it is a neg~ . Therefore, our method dose not need to re-calibration procedure. 
 
 ![drift](figs/drift.png)
+
 
 ## Code usage
 
@@ -37,7 +47,6 @@ The root mean sq ~ is illustrated as below. In our experiment, there are no drif
 ### Trained model and test results (used in the journal)
 * result/T60_model.torch.
 * result/*.mat
-
 
 ## Contact
 dykim07@kaist.ac.kr
