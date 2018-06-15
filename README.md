@@ -30,9 +30,7 @@ Soft sensors are becoming more popular in wearables as a means of tracking human
 
 ### Sensor Placement
 The where and how these sensors are important issues in our research. 
-We considered the complexity of joint motion, the correlation between the joint and muscles, and direction of the muscles fiber to decide the locations of the soft sensors. 
-For example, the trivial one-DOF joints such as the elbow was measured only one soft sensor. 
-However, the shoulder has more complex motions than the one-DOF joints, thus we attached multiple sensors around it. 
+We considered the complexity of joint motion, the correlation between the joint and muscles, and direction of the muscles fiber to decide the position and quantity of the soft sensors. For example, the trivial one-DOF joints such as the elbow ware measured only one soft sensor. However, the shoulder has more complex motions than the one-DOF joints, thus we attached multiple sensors around it. 
 We indicate the locations of the sensors as below.
 ![LOC](figs/sensorLOC.png)
 *Source of the muscle image: http://www.teachpe.com/anatomy/muscles.php*
@@ -40,10 +38,7 @@ We indicate the locations of the sensors as below.
 
 In addition, the detail form of the fastener and its attachment result are drawn as below.
 ![att](figs/sen_att.png)
-As you can be seen in that figure, the fastener tightly adheres to the suit within the stretchable limit of the soft sensor. 
-As a future work, we will find the optimal location and quantity of the soft sensor to improve the tracking accuracy.
-
-
+As you can be seen in that figure, the fastener tightly adheres to the suit within the stretchable limit of the soft sensor.
 
 ## Code usage
 
