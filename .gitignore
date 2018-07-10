@@ -5,3 +5,4 @@ DATASET_old/
 *.pyc
 *.ipynb
 /temp
+/temp_result

@@ -51,8 +51,8 @@ As you can be seen in that figure, the fastener tightly adheres to the suit with
 * quaternion [https://anaconda.org/moble/quaternion]
 
 ### Trained model and test results 
-* result/pt_model.torch
-* result/*.mat
+* pre_result/pt_model.torch
+* pre_result/*.mat
 
 ## Contact
 dykim07@kaist.ac.kr

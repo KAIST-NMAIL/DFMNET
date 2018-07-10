@@ -14,7 +14,7 @@ import os, errno
 from time import localtime, strftime
 
 
-from Dataset.DataLoader import DataLoader
+from dataset.DataLoader import DataLoader
 torch.cuda.set_device(0)
 
 class DiabetesDataset(Dataset):
@@ -22,9 +22,6 @@ class DiabetesDataset(Dataset):
         self.len = x_data.shape[0]
         self.x_data = x_data
         self.y_data = y_data
-
-        print(x_data.shape)
-        print(y_data.shape)
 
     def __getitem__(self, index):
         return self.x_data[index], self.y_data[index]
@@ -35,7 +32,7 @@ class DiabetesDataset(Dataset):
 class Saver():
     def __init__(self, postfix):
         self.path = os.getcwd()
-        self.rootpath = os.path.join(self.path, 'Result')
+        self.rootpath = os.path.join(self.path, 'temp_result')
         times = strftime("%y%m%d_%H%M%S", localtime())
         postfix = postfix + "_" + times
         self.save_path = os.path.join(self.rootpath, postfix)
@@ -50,12 +47,12 @@ class Saver():
                     raise
 
     def testPostProcess(self, data_loader, y_data, y_pred, tag):
-        y_data = data_loader.inverseRotation(y_data, tag)
-        y_pred = data_loader.inverseRotation(y_pred, tag)
+        y_data = data_loader.forwardKinematics(y_data, tag)
+        y_pred = data_loader.forwardKinematics(y_pred, tag)
 
         self.saveResult(y_data,
                         y_pred,
-                        data_loader.getHipDataSet(tag),
+                        data_loader.getHipPosition(tag),
                         tag)
 
     def saveResult(self, y_data, y_pred, hip_data, tag):
@@ -177,7 +174,7 @@ if __name__ =='__main__':
 
     # test
     model.eval()
-    saver = Saver("_")
+    saver = Saver("")
     testResultCase1RMSE = dict()
     testResultCase1STD = dict()
 
