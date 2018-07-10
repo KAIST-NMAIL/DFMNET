@@ -14,14 +14,17 @@ import os, errno
 from time import localtime, strftime
 
 
-from DATASET.DataLoader import DataLoader
-torch.cuda.set_device(1)
+from Dataset.DataLoader import DataLoader
+torch.cuda.set_device(0)
 
 class DiabetesDataset(Dataset):
     def __init__(self, x_data, y_data):
         self.len = x_data.shape[0]
         self.x_data = x_data
         self.y_data = y_data
+
+        print(x_data.shape)
+        print(y_data.shape)
 
     def __getitem__(self, index):
         return self.x_data[index], self.y_data[index]
@@ -125,73 +128,71 @@ if __name__ =='__main__':
 
     dataset_range = np.array(range(63)) + 1
 
-    for set_size in dataset_range:
-        print("set_size: ", set_size)
 
-        train_dataset = data_loader.getTrainDataSet(set_size)
+    train_dataset = data_loader.getTrainDataSet()
 
-        x_data = train_dataset[0]
-        y_data = train_dataset[1]
+    x_data = train_dataset[0]
+    y_data = train_dataset[1]
 
-        x_data = torch.from_numpy(x_data)
-        y_data = torch.from_numpy(y_data)
+    x_data = torch.from_numpy(x_data)
+    y_data = torch.from_numpy(y_data)
 
-        shape = data_loader.getDataSetShape()
-        n_input = shape[0][1]
-        n_output = shape[1][0]
 
-        model = LSTMR(n_input, n_output).cuda()
+    n_input = 20
+    n_output = 39
 
-        train_history = []
+    model = LSTMR(n_input, n_output).cuda()
 
-        train_dataset_loader = torchDataLoader(dataset=DiabetesDataset(x_data, y_data),
-                                               batch_size=batch_size,
-                                               shuffle=True,
-                                               drop_last=False
-                                               )
-        criterion = nn.MSELoss()
-        optimizer = optim.Adam(model.parameters(), lr=lr)
+    train_history = []
 
-        # training
-        for epoch in range(n_epoch):
-            for i, data in enumerate(train_dataset_loader, 0):
-                model.train()
+    train_dataset_loader = torchDataLoader(dataset=DiabetesDataset(x_data, y_data),
+                                           batch_size=batch_size,
+                                           shuffle=True,
+                                           drop_last=False
+                                           )
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
-                x_data = Variable(data[0], requires_grad=False).type(torch.cuda.FloatTensor)
-                y_data = Variable(data[1], requires_grad=False).type(torch.cuda.FloatTensor)
+    # training
+    for epoch in range(n_epoch):
+        for i, data in enumerate(train_dataset_loader, 0):
+            model.train()
 
-                optimizer.zero_grad()
-                y_pred = model(x_data)
-                loss = criterion(y_pred, y_data)
-                loss.backward()
-                optimizer.step()
+            x_data = Variable(data[0], requires_grad=False).type(torch.cuda.FloatTensor)
+            y_data = Variable(data[1], requires_grad=False).type(torch.cuda.FloatTensor)
 
-            model.eval()
-            train_error = loss.cpu().data.numpy()[0]
-            train_history.append(np.sqrt(train_error))
-            if epoch % 10 == 0:
-                print("Epoch: %04d" % epoch,
-                      " train_cost: ", "{:.9f}".format(train_error))
-                
-                
-        # test
+            optimizer.zero_grad()
+            y_pred = model(x_data)
+            loss = criterion(y_pred, y_data)
+            loss.backward()
+            optimizer.step()
+
         model.eval()
-        saver = Saver(str(set_size))
-        testResultCase1RMSE = dict()
-        testResultCase1STD = dict()
+        train_error = loss.cpu().data.numpy()[0]
+        train_history.append(np.sqrt(train_error))
+        if epoch % 10 == 0:
+            print("Epoch: %04d" % epoch,
+                  " train_cost: ", "{:.9f}".format(train_error))
 
-        gts = dict()
-        preds = dict()
 
-        for tag in data_loader.dataset_tags:
-            dataset = data_loader.getTestDataSet(tag)
-            x_data = dataset[0]
-            y_data = dataset[1]
+    # test
+    model.eval()
+    saver = Saver("_")
+    testResultCase1RMSE = dict()
+    testResultCase1STD = dict()
 
-            x_data = Variable(torch.from_numpy(x_data), requires_grad=False).type(torch.cuda.FloatTensor)
-            y_pred = model(x_data).cpu().data.numpy()
+    gts = dict()
+    preds = dict()
 
-            gts[tag] = y_data
-            preds[tag] = y_pred
+    for tag in data_loader.dataset_tags:
+        dataset = data_loader.getTestDataSet(tag)
+        x_data = dataset[0]
+        y_data = dataset[1]
 
-            saver.testPostProcess(data_loader, y_data, y_pred, tag)
+        x_data = Variable(torch.from_numpy(x_data), requires_grad=False).type(torch.cuda.FloatTensor)
+        y_pred = model(x_data).cpu().data.numpy()
+
+        gts[tag] = y_data
+        preds[tag] = y_pred
+
+        saver.testPostProcess(data_loader, y_data, y_pred, tag)
