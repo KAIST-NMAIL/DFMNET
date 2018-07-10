@@ -136,13 +136,6 @@ if __name__ =='__main__':
         x_data = torch.from_numpy(x_data)
         y_data = torch.from_numpy(y_data)
 
-        validation_data = data_loader.getValidationDataSet()
-        x_dataV = validation_data[0]
-        y_dataV = validation_data[1]
-
-        x_dataV = Variable(torch.from_numpy(x_dataV), requires_grad=False)
-        y_dataV = Variable(torch.from_numpy(y_dataV), requires_grad=False)
-
         shape = data_loader.getDataSetShape()
         n_input = shape[0][1]
         n_output = shape[1][0]
@@ -150,7 +143,6 @@ if __name__ =='__main__':
         model = LSTMR(n_input, n_output).cuda()
 
         train_history = []
-        validation_history = []
 
         train_dataset_loader = torchDataLoader(dataset=DiabetesDataset(x_data, y_data),
                                                batch_size=batch_size,
@@ -175,20 +167,13 @@ if __name__ =='__main__':
                 optimizer.step()
 
             model.eval()
-            y_pred = model(x_dataV.type(torch.cuda.FloatTensor))
-            loss_validation = criterion(y_pred, y_dataV.type(torch.cuda.FloatTensor))
-
             train_error = loss.cpu().data.numpy()[0]
-            validation_error = loss_validation.cpu().data.numpy()[0]
-
             train_history.append(np.sqrt(train_error))
-            validation_history.append(np.sqrt(validation_error))
-
             if epoch % 10 == 0:
                 print("Epoch: %04d" % epoch,
-                      " train_cost: ", "{:.9f}".format(train_error),
-                      " validation_cost: ", "{:.9f}".format(validation_error))
-
+                      " train_cost: ", "{:.9f}".format(train_error))
+                
+                
         # test
         model.eval()
         saver = Saver(str(set_size))
@@ -210,11 +195,3 @@ if __name__ =='__main__':
             preds[tag] = y_pred
 
             saver.testPostProcess(data_loader, y_data, y_pred, tag)
-
-
-
-
-
-
-
-
