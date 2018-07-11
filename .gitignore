@@ -1,8 +1,12 @@
 .vscode/
 DATASET_old/
 .idea/
+/temp
+/temp_result
+/runs
+/logdir
 *.mp4
 *.pyc
 *.ipynb
-/temp
-/temp_result
+
+unitTest.py
