@@ -1,16 +1,9 @@
-from copy import deepcopy
-import os
-
-from time import localtime
-from time import strftime
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader as torchDataLoader
 import numpy as np
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error as SkMSE
 from sklearn.base import BaseEstimator, RegressorMixin
 from tensorboardX import SummaryWriter
 
@@ -35,7 +28,7 @@ else:
 
 class DFMNET(nn.Module, BaseEstimator, RegressorMixin):
     def __init__(self, n_input: int, n_output: int, n_lstm_layer=2, n_lstm_hidden=128, n_KDN_hidden=128, lr=0.001,
-                 n_epochs=100, batch_size=16, writer=None):
+                 n_epochs=5, batch_size=16, writer=None):
         super().__init__()
         self.n_input = n_input
         self.n_output = n_output
@@ -142,8 +135,8 @@ class DFMNET(nn.Module, BaseEstimator, RegressorMixin):
                     pass
                 else:
                     self.optimizer.step()
-
-            self.writer.add_scalar('train/train_loss', loss.item(), epoch )
+            if self.writer is not None:
+                self.writer.add_scalar('train/train_loss', loss.item(), epoch )
 
         return self
 
@@ -170,5 +163,11 @@ if __name__ == '__main__':
 
     train_x, train_y = loader.getStandardTrainDataSet()
     dfmnet.fit(train_x, train_y)
+
+    for tag in loader.dataset_tags:
+        print("Test: ", tag)
+        x_data, y_data = loader.getStandardTestDataSet(tag)
+        x_data_torch = torch.from_numpy(x_data).type(torch.float).to(DEVICE)
+        pred = dfmnet.predict(x_data_torch)
 
     writer.close()

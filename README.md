@@ -44,7 +44,10 @@ As you can be seen in that figure, the fastener tightly adheres to the suit with
 
 ### v1.0 : TMECH
 
+* bug fix
+
 ### v1.4
+
 * pytorch 0.4 migration
 * tensorboardx
 * scikit-learn wrapper
