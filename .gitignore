@@ -3,3 +3,6 @@ DATASET_old/
 .idea/
 *.mp4
 *.pyc
+*.ipynb
+/temp
+/temp_result

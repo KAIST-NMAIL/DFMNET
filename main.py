@@ -14,8 +14,8 @@ import os, errno
 from time import localtime, strftime
 
 
-from DATASET.DataLoader import DataLoader
-torch.cuda.set_device(1)
+from dataset.DataLoader import DataLoader
+torch.cuda.set_device(0)
 
 class DiabetesDataset(Dataset):
     def __init__(self, x_data, y_data):
@@ -32,7 +32,7 @@ class DiabetesDataset(Dataset):
 class Saver():
     def __init__(self, postfix):
         self.path = os.getcwd()
-        self.rootpath = os.path.join(self.path, 'Result')
+        self.rootpath = os.path.join(self.path, 'temp_result')
         times = strftime("%y%m%d_%H%M%S", localtime())
         postfix = postfix + "_" + times
         self.save_path = os.path.join(self.rootpath, postfix)
@@ -47,12 +47,12 @@ class Saver():
                     raise
 
     def testPostProcess(self, data_loader, y_data, y_pred, tag):
-        y_data = data_loader.inverseRotation(y_data, tag)
-        y_pred = data_loader.inverseRotation(y_pred, tag)
+        y_data = data_loader.forwardKinematics(y_data, tag)
+        y_pred = data_loader.forwardKinematics(y_pred, tag)
 
         self.saveResult(y_data,
                         y_pred,
-                        data_loader.getHipDataSet(tag),
+                        data_loader.getHipPosition(tag),
                         tag)
 
     def saveResult(self, y_data, y_pred, hip_data, tag):
@@ -125,96 +125,71 @@ if __name__ =='__main__':
 
     dataset_range = np.array(range(63)) + 1
 
-    for set_size in dataset_range:
-        print("set_size: ", set_size)
 
-        train_dataset = data_loader.getTrainDataSet(set_size)
+    train_dataset = data_loader.getTrainDataSet()
 
-        x_data = train_dataset[0]
-        y_data = train_dataset[1]
+    x_data = train_dataset[0]
+    y_data = train_dataset[1]
 
-        x_data = torch.from_numpy(x_data)
-        y_data = torch.from_numpy(y_data)
+    x_data = torch.from_numpy(x_data)
+    y_data = torch.from_numpy(y_data)
 
-        validation_data = data_loader.getValidationDataSet()
-        x_dataV = validation_data[0]
-        y_dataV = validation_data[1]
 
-        x_dataV = Variable(torch.from_numpy(x_dataV), requires_grad=False)
-        y_dataV = Variable(torch.from_numpy(y_dataV), requires_grad=False)
+    n_input = 20
+    n_output = 39
 
-        shape = data_loader.getDataSetShape()
-        n_input = shape[0][1]
-        n_output = shape[1][0]
+    model = LSTMR(n_input, n_output).cuda()
 
-        model = LSTMR(n_input, n_output).cuda()
+    train_history = []
 
-        train_history = []
-        validation_history = []
+    train_dataset_loader = torchDataLoader(dataset=DiabetesDataset(x_data, y_data),
+                                           batch_size=batch_size,
+                                           shuffle=True,
+                                           drop_last=False
+                                           )
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
-        train_dataset_loader = torchDataLoader(dataset=DiabetesDataset(x_data, y_data),
-                                               batch_size=batch_size,
-                                               shuffle=True,
-                                               drop_last=False
-                                               )
-        criterion = nn.MSELoss()
-        optimizer = optim.Adam(model.parameters(), lr=lr)
+    # training
+    for epoch in range(n_epoch):
+        for i, data in enumerate(train_dataset_loader, 0):
+            model.train()
 
-        # training
-        for epoch in range(n_epoch):
-            for i, data in enumerate(train_dataset_loader, 0):
-                model.train()
+            x_data = Variable(data[0], requires_grad=False).type(torch.cuda.FloatTensor)
+            y_data = Variable(data[1], requires_grad=False).type(torch.cuda.FloatTensor)
 
-                x_data = Variable(data[0], requires_grad=False).type(torch.cuda.FloatTensor)
-                y_data = Variable(data[1], requires_grad=False).type(torch.cuda.FloatTensor)
+            optimizer.zero_grad()
+            y_pred = model(x_data)
+            loss = criterion(y_pred, y_data)
+            loss.backward()
+            optimizer.step()
 
-                optimizer.zero_grad()
-                y_pred = model(x_data)
-                loss = criterion(y_pred, y_data)
-                loss.backward()
-                optimizer.step()
-
-            model.eval()
-            y_pred = model(x_dataV.type(torch.cuda.FloatTensor))
-            loss_validation = criterion(y_pred, y_dataV.type(torch.cuda.FloatTensor))
-
-            train_error = loss.cpu().data.numpy()[0]
-            validation_error = loss_validation.cpu().data.numpy()[0]
-
-            train_history.append(np.sqrt(train_error))
-            validation_history.append(np.sqrt(validation_error))
-
-            if epoch % 10 == 0:
-                print("Epoch: %04d" % epoch,
-                      " train_cost: ", "{:.9f}".format(train_error),
-                      " validation_cost: ", "{:.9f}".format(validation_error))
-
-        # test
         model.eval()
-        saver = Saver(str(set_size))
-        testResultCase1RMSE = dict()
-        testResultCase1STD = dict()
-
-        gts = dict()
-        preds = dict()
-
-        for tag in data_loader.dataset_tags:
-            dataset = data_loader.getTestDataSet(tag)
-            x_data = dataset[0]
-            y_data = dataset[1]
-
-            x_data = Variable(torch.from_numpy(x_data), requires_grad=False).type(torch.cuda.FloatTensor)
-            y_pred = model(x_data).cpu().data.numpy()
-
-            gts[tag] = y_data
-            preds[tag] = y_pred
-
-            saver.testPostProcess(data_loader, y_data, y_pred, tag)
+        train_error = loss.cpu().data.numpy()[0]
+        train_history.append(np.sqrt(train_error))
+        if epoch % 10 == 0:
+            print("Epoch: %04d" % epoch,
+                  " train_cost: ", "{:.9f}".format(train_error))
 
 
+    # test
+    model.eval()
+    saver = Saver("")
+    testResultCase1RMSE = dict()
+    testResultCase1STD = dict()
 
+    gts = dict()
+    preds = dict()
 
+    for tag in data_loader.dataset_tags:
+        dataset = data_loader.getTestDataSet(tag)
+        x_data = dataset[0]
+        y_data = dataset[1]
 
+        x_data = Variable(torch.from_numpy(x_data), requires_grad=False).type(torch.cuda.FloatTensor)
+        y_pred = model(x_data).cpu().data.numpy()
 
+        gts[tag] = y_data
+        preds[tag] = y_pred
 
-
+        saver.testPostProcess(data_loader, y_data, y_pred, tag)
