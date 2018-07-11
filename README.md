@@ -40,9 +40,22 @@ In addition, the detail form of the fastener and its attachment result are drawn
 ![att](figs/sen_att.png)
 As you can be seen in that figure, the fastener tightly adheres to the suit within the stretchable limit of the soft sensor.
 
+## release note
+
+### v1.0 : TMECH
+
+### v1.4
+* pytorch 0.4 migration
+* tensorboardx
+* scikit-learn wrapper
+* standard scaler 
+
 ## Code usage
 
 ### Environment
+
+#### v1.0
+
 * pytorch 0.3
 * numpy
 * scipy
@@ -50,7 +63,11 @@ As you can be seen in that figure, the fastener tightly adheres to the suit with
 * scikit-learn
 * quaternion [https://anaconda.org/moble/quaternion]
 
-### Trained model and test results 
+#### v1.4
+* pytorch 0.4
+* tensorboardx
+
+### Trained model and test results : !! v1.0 only !!
 * pre_result/pt_model.torch
 * pre_result/*.mat
 
