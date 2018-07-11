@@ -6,3 +6,5 @@ DATASET_old/
 *.ipynb
 /temp
 /temp_result
+/runs
+unitTest.py
