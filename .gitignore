@@ -1,10 +1,18 @@
 .vscode/
 DATASET_old/
 .idea/
-*.mp4
-*.pyc
-*.ipynb
 /temp
 /temp_result
 /runs
+/logdir
+*.mp4
+*.pyc
+*.ipynb
+<<<<<<< HEAD
+/temp
+/temp_result
+/runs
+=======
+
+>>>>>>> v1.4
 unitTest.py
