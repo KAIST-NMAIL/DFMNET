@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 class DataLoader():
     def __init__(self, window_size=120):
         self.window_size = window_size
-        self.dataset_tags = ['BR', 'WM', 'SQ']
+        self.dataset_tags = ['BR', 'SQ', 'WM']
         self.file_names = ['BnR.mat', 'squat.mat', 'windmill.mat']
         self.dataset = dict()
 
