@@ -13,6 +13,8 @@ from dataset.DataLoader import DataLoader, DiabetesDataset
 INPUT_DIM = 20
 OUTPUT_DIM = 39
 CUDA_ID = 0
+N_EPOCHS = 30
+BATCH_SIZE = 512
 
 # times = strftime("%y%m%d_%H%M%S", localtime())
 # SAVE_PATH = os.path.join(os.getcwd(), 'logdir')
@@ -159,7 +161,7 @@ if __name__ == '__main__':
     writer = SummaryWriter()
     loader = DataLoader()
 
-    dfmnet = DFMNET(INPUT_DIM, OUTPUT_DIM, writer=writer)
+    dfmnet = DFMNET(INPUT_DIM, OUTPUT_DIM, batch_size=BATCH_SIZE, n_epochs=N_EPOCHS, writer=None)
 
     train_x, train_y = loader.getStandardTrainDataSet()
     dfmnet.fit(train_x, train_y)
