@@ -12,7 +12,6 @@ class DataLoader():
     def __init__(self, window_size=120):
         self.window_size = window_size
         self.dataset_tags = ['BR', 'SQ', 'WM']
-        self.file_names = ['BnR.mat', 'squat.mat', 'windmill.mat']
         self.dataset = dict()
 
         self.scaler = None
@@ -21,8 +20,13 @@ class DataLoader():
 
     def load_dataset(self):
         for idx, tag in enumerate(self.dataset_tags):
-            file_name = os.getcwd() + '/dataset/' + self.file_names[idx]
-            self.dataset[tag] = loadmat(file_name)
+            path = os.path.join(
+                os.getcwd(),
+                'dataset',
+                tag + '.pick'
+            )
+            with open(path, 'rb') as f:
+                self.dataset[tag] = pickle.load(f)
 
     def generateWindow(self, x_raw,  window_size):
         x_data = []
